@@ -9,6 +9,7 @@ databricks-ai-search
 faiss-cpu
 langchain_chroma
 langchain-postgres
+langgraph-checkpoint-postgres
 psycopg[binary]
 pgvector
 ipykernel

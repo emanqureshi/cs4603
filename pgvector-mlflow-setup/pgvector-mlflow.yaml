@@ -8,7 +8,7 @@ spec:
     #    Uses the custom image built from Dockerfile.pgvector, which bakes the
     #    initdb SQL into /docker-entrypoint-initdb.d (run on first DB init).
     - name: pgvector
-      image: localhost/postgres-vector:latest
+      image: localhost/pgvector-lums:v1
       ports:
         - containerPort: 5432
           hostPort: 5432
@@ -18,7 +18,7 @@ spec:
         - name: POSTGRES_PASSWORD
           value: langchain!
         - name: POSTGRES_DB
-          value: langchain_db
+          value: lc_vector_db
       volumeMounts:
         - mountPath: /var/lib/postgresql
           name: pgdata

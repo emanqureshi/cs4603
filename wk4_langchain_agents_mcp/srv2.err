@@ -1,6 +1,0 @@
-2026-06-30 01:13:02,192 [INFO] Launching MCP server over streamable-http at http://127.0.0.1:8000/mcp. Press Ctrl+C to stop.
-[32mINFO[0m:     Started server process [[36m83944[0m]
-[32mINFO[0m:     Waiting for application startup.
-2026-06-30 01:13:02,249 [INFO] StreamableHTTP session manager started
-[32mINFO[0m:     Application startup complete.
-[32mINFO[0m:     Uvicorn running on [1mhttp://127.0.0.1:8000[0m (Press CTRL+C to quit)

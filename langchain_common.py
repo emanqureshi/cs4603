@@ -3,6 +3,7 @@ import os
 
 from dotenv import load_dotenv
 from typing import Union, Dict, Any
+
 from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
@@ -15,8 +16,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import tool
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from langchain.agents import create_agent
+from langchain.agents import create_agent, AgentState
 from langchain_core.messages import ToolMessage
+from langchain.agents.middleware import SummarizationMiddleware
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.checkpoint.postgres import PostgresSaver
+
 from tavily import TavilyClient
 
 import openai
@@ -134,9 +139,13 @@ def get_agent_instance(llm):
 def new_conversation_id() -> str:
     return str(uuid.uuid4())
   
-def make_thread_config(user_id: str) -> dict:
+def make_thread_config(user_id: str | None = None) -> dict:
     conversation_id = new_conversation_id()
-    return {"configurable": {"thread_id": f"user-{user_id}:conv-{conversation_id}"}}
+    if user_id is None:
+        thread_id = f"conv-{conversation_id}"
+    else:
+        thread_id = f"user-{user_id}:conv-{conversation_id}"
+    return {"configurable": {"thread_id": thread_id}}
 
 def bootstrap_notebook(validate: bool = True):
     """Return notebook-ready variables: token, host, endpoint, and configured client."""
@@ -144,6 +153,17 @@ def bootstrap_notebook(validate: bool = True):
     llm, llm_noreason, databricks_embeddings = create_databricks_client(config)
     
     return config.token, config.host, config.endpoint, (llm, llm_noreason), databricks_embeddings
+
+def create_pg_checkpointer():
+    # Persistent Postgres checkpointer
+    from psycopg import Connection
+
+    checkpointer_conn = f"postgresql://{pgvectordb_base}/lc_checkpointer_db"
+    conn = Connection.connect(checkpointer_conn, autocommit=True, prepare_threshold=0)
+    pg_checkpointer = PostgresSaver(conn)
+    pg_checkpointer.setup()
+    
+    return pg_checkpointer
 
 if __name__ == "__main__":
     warnings.filterwarnings("ignore", module="pydantic")
@@ -153,6 +173,7 @@ if __name__ == "__main__":
     except Exception:
         pass
 
-    pgvectordb_conn = "postgresql+psycopg://langchain:langchain!@localhost:5432/cs4603_vectordb"  
+    pgvectordb_base = "langchain:langchain!@localhost:5432"
+    pgvectordb_conn = f"postgresql+psycopg://{pgvectordb_base}/lc_vector_db"  
 
     DATABRICKS_TOKEN, DATABRICKS_HOST, DATABRICKS_MODEL, (llm, llm_noreason), databricks_embeddings = bootstrap_notebook()
