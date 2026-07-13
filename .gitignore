@@ -224,3 +224,6 @@ traces.json
 wk1_llm_basics/mlartifacts/
 
 .vscode/
+
+# MarkItDown-generated markdown cache (rebuilt from PDFs)
+**/rag_data/markdown/*.md

@@ -21,7 +21,8 @@ iprogress
 pprintpp
 pypdf
 bs4
-markitdown 
+markitdown[all]
+markitdown[pdf]
 streamlit
 streamlit-chat
 tavily-python

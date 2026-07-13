@@ -109,7 +109,8 @@ def create_databricks_client(config: DatabricksConfig) -> openai.OpenAI:
         model="databricks-gte-large-en",
         api_key=config.token,
         base_url=f"{config.host}/serving-endpoints",
-        check_embedding_ctx_length=False
+        check_embedding_ctx_length=False,
+        chunk_size=100,  # Databricks caps this endpoint at 150 inputs per request
     )
 
     return llm, llm_noreason, databricks_embeddings
